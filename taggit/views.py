@@ -9,11 +9,7 @@ def tagged_object_list(request, slug, queryset, **kwargs):
     if callable(queryset):
         queryset = queryset()
     kwargs["slug"] = slug
-    tag_list_view = type(
-        "TagListView",
-        (TagListMixin, ListView),
-        {"model": queryset.model, "queryset": queryset},
-    )
+    tag_list_view = type("TagListView", (TagListMixin, ListView), {"model": queryset.model, "queryset": queryset})
     return tag_list_view.as_view()(request, **kwargs)
 
 

@@ -110,7 +110,7 @@ def _edit_string_for_tags(tags):
     for tag in tags:
         name = tag.name
         if "," in name or " " in name:
-            names.append('"%s"' % name)
+            names.append(f'"{name}"')
         else:
             names.append(name)
     return ", ".join(sorted(names))
@@ -120,7 +120,7 @@ def require_instance_manager(func):
     @wraps(func)
     def inner(self, *args, **kwargs):
         if self.instance is None:
-            raise TypeError("Can't call %s with a non-instance manager" % func.__name__)
+            raise TypeError(f"Can't call {func.__name__} with a non-instance manager")
         return func(self, *args, **kwargs)
 
     return inner
