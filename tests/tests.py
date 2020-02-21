@@ -50,6 +50,10 @@ from .models import (
     TrackedTag,
     UUIDFood,
     UUIDTag,
+    UUIDHousePet,
+    UUIDPet,
+    UUIDTag,
+    UUIDTaggedItem,
 )
 
 from taggit.managers import TaggableManager, _TaggableManager
@@ -97,11 +101,11 @@ class TagModelTestCase(BaseTaggingTestCase):
         """Adding an integer as a tag should raise a ValueError (#237)."""
         apple = self.food_model.objects.create(name="apple")
         with self.assertRaisesRegex(
-            ValueError,
-            (
-                r"Cannot add 1 \(<(type|class) 'int'>\). "
-                r"Expected <class 'django.db.models.base.ModelBase'> or str."
-            ),
+                ValueError,
+                (
+                        r"Cannot add 1 \(<(type|class) 'int'>\). "
+                        r"Expected <class 'django.db.models.base.ModelBase'> or str."
+                ),
         ):
             apple.tags.add(1)
 
@@ -272,7 +276,7 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
 
     @mock.patch("django.db.models.signals.m2m_changed.send")
     def test_add_second_tag_sends_m2m_changed_signals_with_correct_new_pks(
-        self, send_mock
+            self, send_mock
     ):
         apple = self.food_model.objects.create(name="apple")
         green = self.tag_model.objects.create(name="green")
@@ -528,8 +532,8 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
     def test_require_pk(self):
         food_instance = self.food_model()
         msg = (
-            "%s objects need to have a primary key value before you can access "
-            "their tags." % type(self.food_model()).__name__
+                "%s objects need to have a primary key value before you can access "
+                "their tags." % type(self.food_model()).__name__
         )
         with self.assertRaisesMessage(ValueError, msg):
             food_instance.tags.all()
@@ -677,13 +681,13 @@ class TaggableManagerTestCase(BaseTaggingTestCase):
         apple = self.food_model.objects.create(name="apple")
         apple.tags.add("green")
         apple.tags.add("red")
-        self.assertEqual(list(apple.tags.names()), ["green", "red"])
+        self.assertEqual(sorted(list(apple.tags.names())), ["green", "red"])
 
     def test_slugs_method(self):
         apple = self.food_model.objects.create(name="apple")
         apple.tags.add("green and juicy")
         apple.tags.add("red")
-        self.assertEqual(list(apple.tags.slugs()), ["green-and-juicy", "red"])
+        self.assertEqual(sorted(list(apple.tags.slugs())), ["green-and-juicy", "red"])
 
     def test_serializes(self):
         apple = self.food_model.objects.create(name="apple")
@@ -790,6 +794,19 @@ class TaggableManagerCustomPKTestCase(TaggableManagerTestCase):
 
     def test_require_pk(self):
         # With a CharField pk, pk is never None. So taggit has no way to tell
+        # if the instance is saved or not.
+        pass
+
+
+class TaggableManagerUUIDTestCase(TaggableManagerTestCase):
+    food_model = UUIDFood
+    pet_model = UUIDPet
+    housepet_model = UUIDHousePet
+    taggeditem_model = UUIDTaggedItem
+    tag_model = UUIDTag
+
+    def test_require_pk(self):
+        # With a UUIDField pk, pk is never None. So taggit has no way to tell
         # if the instance is saved or not.
         pass
 

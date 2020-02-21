@@ -331,13 +331,40 @@ class UUIDFood(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50)
     tags = TaggableManager(through="UUIDTaggedItem")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
+    class Meta:
+        # With a UUIDField pk, objects are not always ordered by creation time. So explicitly set ordering.
+        ordering = ["created_at"]
+
+
+class UUIDPet(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50)
+
+    tags = TaggableManager(through="UUIDTaggedItem")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        # With a UUIDField pk, objects are not always ordered by creation time. So explicitly set ordering.
+        ordering = ["created_at"]
+
+
+class UUIDHousePet(UUIDPet):
+    trained = models.BooleanField(default=False)
+
 
 class UUIDTag(TagBase):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    class Meta:
+        unique_together = [["content_type", "object_id", "tag"]]
 
 
 class UUIDTaggedItem(GenericUUIDTaggedItemBase):
